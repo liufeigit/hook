@@ -12,4 +12,8 @@ hook 的原理就是修改stub的相应的跳转表
 
 setLaSymPtr(0, "testA", format1); // hook libA.dylib 的testA 变为当前的format1 函数指针
 
+然后再执行testA 将会跳转到format1 
+
+
+
 
