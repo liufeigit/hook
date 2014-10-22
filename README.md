@@ -3,8 +3,14 @@ hook
 
 mac OSX and ios hook (mac和ios平台hook)
 
-1. A.c 编译为libA.dylib 动态库 clang -g -shared -fPIC A.c -o libA.dylib; testA为测试hook方法
-2. hook.c 文件编译 clang -g -framework Foundation -L./ -lA hook.c -o hook
+1. A.c 编译为libA.dylib 动态库 
+
+   clang -g -shared -fPIC A.c -o libA.dylib; testA为测试被hook的方法
+
+2. hook.c 文件编译
+ 
+   clang -g -framework Foundation -L./ -lA hook.c -o hook
+
 3. 运行 ./hook 
 
 hook 的原理就是修改stub的相应的跳转表
