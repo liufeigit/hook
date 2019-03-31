@@ -224,11 +224,11 @@ void getRelationTabMeta(int num,RelationTabMeta *relationTabMeta){
 
 		curBase=curBase+cmdSize; // 移动当前指针
 
-		// NSLog(@"curBase is %p",curBase);
+		// printf("curBase is %p",curBase);
 
 	}
 
-	// NSLog(@"......end");
+	// printf("......end");
 
 }
 
@@ -256,7 +256,7 @@ SymMeta *findSymMeta(int num,char *name){
 
 	symMeta=(SymMeta *)malloc(sizeof(SymMeta)*1);
 	symMeta->_flag=0;
-	getRelationTabMeta(0,&relationTabMeta);
+	getRelationTabMeta(num,&relationTabMeta);
 	laSymPtrMeta=relationTabMeta.laSymPtrMeta;
 	dyIndSymMeta=relationTabMeta.dyIndSymMeta;
 	symTabMeta=relationTabMeta.symTabMeta;
@@ -290,7 +290,7 @@ SymMeta *findSymMeta(int num,char *name){
 		// ??? 2014/8/22 21:30 掩码问题和其它情况
 		if(nType==_ext){ //  _ext|_undf外部链接符号 2014/8/22 19:15 优先处理
 			int strIndex=symTabBase->n_un.n_strx; // 取得当前符号的strTab索引
-			char *curStr=strTabBase+strIndex+1; // "."界定富
+			char *curStr=strTabBase+strIndex+1; // "."界定符
 			if(strcmp(curStr, name)==0){ // 如果匹配上的话
 
 				int _num,_bs;
@@ -337,7 +337,6 @@ SymMeta *findSymMeta(int num,char *name){
 		}
 
 		symTabBase=symTabBase+1;
-
 	}
 
  	// 返回值断定
@@ -389,57 +388,30 @@ int setLaSymPtr(int num,char *name,void *fn){
 		}
 	}
 
+	free(symMeta);
+
 	return flag;
 
 }
 
-void format1(){
+int fastHook(char *name,void *fn){
+	int status=1;
+	int count=0;
+	int flag=0;
 
-	void *h=dlopen("libA.dylib", 1);
+	count=_dyld_image_count();
+	for(int i=0;i<count;i++){
+		flag=setLaSymPtr(i,name,fn);
+		if(flag){ // 成功
+			status=0;
+			break;
+		}
+	}
 
-	void *fn1=dlsym(h, "testA");
-
-	void *h1=dlopen("libA.dylib", 1);
-
-	void *fn2=dlsym(h1, "testA");
-
-	struct mach_header_64 *header=(struct mach_header_64 *)h;
-	struct mach_header_64 *header1=_dyld_get_image_header(1); 
-
-	int slide=_dyld_get_image_vmaddr_slide(1);
-
-
-	NSLog(@"libA.dylib is %p\n",h);
-	NSLog(@"libA.dylib is %p\n",h1);
-	dlclose(h);
-	dlclose(h1);
-
-	// struct nlist_64 list;
-	// nlist("format", &list);
-
+	return status;
 }
 
-void testUpdate(){
-	testA();
-	RelationTabMeta relationTabMeta;
-	getRelationTabMeta(0,&relationTabMeta);
-
-	SymMeta *symMeta;
-	symMeta=findSymMeta(0,"testA");
-
-	setLaSymPtr(0, "testA", format1);
-
-	testA();
-
-}
-
-int main(int argc,char **argv){
 
 
-	testUpdate();
 
-	getchar();
-
-	return 0;
-}
 
